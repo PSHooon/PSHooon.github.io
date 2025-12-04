@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💑 MBTI 커플 매치 분석 센터 📊</title>
+    <style>
+        /* Modern Sports Broadcast Style (Bright Theme) */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Noto+Sans+KR:wght@400;700&display=swap');
+
+        :root {
+            --color-primary: #ff4081; /* Bright Pink/Magenta - 강조 색상 (사랑/열정) */
+            --color-secondary: #00bcd4; /* Aqua/Cyan - 보조 강조 색상 */
+            --color-background: #f7f9fc; /* Very Light Gray/Bright Background */
+            --color-card: #ffffff; /* Pure White Card Background */
+            --color-text: #2c3e50; /* Dark Blue/Gray - 주 텍스트 */
+            --color-light-text: #7f8c8d; /* Subdue Text */
+            --font-family: 'Poppins', 'Noto Sans KR', sans-serif;
+            --border-radius: 12px;
+            --shadow-light: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--color-background);
+            color: var(--color-text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 960px;
+            background: var(--color-card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            padding: 30px;
+            border-top: 5px solid var(--color-primary);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            font-weight: 800;
+            color: var(--color-primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        /* 폼 섹션 스타일 */
+        .form-section {
+            padding: 20px;
+            border-radius: var(--border-radius);
+            background: #f5f5f5;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-section h2 {
+            color: var(--color-secondary);
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--color-secondary);
+            padding-bottom: 5px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--color-text);
+            font-size: 1em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: var(--color-card);
+            color: var(--color-text);
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 5px rgba(255, 64, 129, 0.5);
+            outline: none;
+        }
+
+        .gender-select {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .gender-select input[type="radio"] {
+            display: none;
+        }
+
+        .gender-select label.radio-label {
+            padding: 10px 20px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+            font-weight: 600;
+            color: var(--color-light-text);
+        }
+
+        .gender-select input[type="radio"]:checked + label.radio-label {
+            background-color: var(--color-secondary);
+            border-color: var(--color-secondary);
+            color: var(--color-card);
+            box-shadow: 0 2px 5px rgba(0, 188, 212, 0.4);
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 800;
+            text-transform: uppercase;
+            transition: background-color 0.3s, transform 0.1s;
+            font-size: 1.1em;
+            box-shadow: var(--shadow-light);
+        }
+
+        #register-btn {
+            background-color: var(--color-primary);
+            color: var(--color-card);
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #register-btn:hover {
+            background-color: #ff6e9d;
+            transform: translateY(-2px);
+        }
+
+        /* 결과/상태 섹션 스타일 */
+        .result-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .status-box {
+            background: #e3f2fd; /* Light Blue */
+            padding: 15px;
+            border-radius: var(--border-radius);
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #1976d2; /* Darker Blue */
+            text-align: center;
+            border-left: 5px solid var(--color-secondary);
+        }
+
+        .result-area {
+            background: var(--color-card);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border: 1px solid #eee;
+            min-height: 400px;
+        }
+
+        .result-area h3 {
+            font-size: 1.4em;
+            color: var(--color-primary);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 8px;
+            margin-top: 0;
+            font-weight: 700;
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .score-display .score {
+            font-size: 4em;
+            font-weight: 800;
+            color: var(--color-primary);
+            line-height: 1;
+            text-shadow: 2px 2px 5px rgba(255, 64, 129, 0.3);
+        }
+
+        .score-display .label {
+            font-size: 1.2em;
+            color: var(--color-light-text);
+            margin-top: -5px;
+        }
+
+        .analysis-item {
+            margin-bottom: 20px;
+        }
+
+        .analysis-item h4 {
+            color: var(--color-secondary);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .analysis-item ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .analysis-item ul li {
+            background: #f1f8e9; /* Light Green/Yellow */
+            color: var(--color-text);
+            padding: 8px 15px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 4px solid var(--color-primary);
+            font-weight: 500;
+        }
+
+        .footer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+
+        #reset-btn {
+            background-color: #95a5a6; /* Gray */
+            color: var(--color-card);
+        }
+
+        #reset-btn:hover {
+            background-color: #b2bec3;
+            transform: translateY(-2px);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-heart"></i> MBTI 연애 궁합 분석 💖</h1>
+        </header>
+
+        <div class="layout">
+            <div class="form-section">
+                <h2>정보 입력</h2>
+                <form id="mbti-form">
+                    <label for="my_mbti">나의 MBTI (예: ENFP)</label>
+                    <input type="text" id="my_mbti" placeholder="4글자 입력" maxlength="4" required>
+                    
+                    <label>나의 성별</label>
+                    <div class="gender-select">
+                        <input type="radio" id="my_gender_m" name="my_gender" value="male" required>
+                        <label for="my_gender_m" class="radio-label">남자</label>
+                        <input type="radio" id="my_gender_f" name="my_gender" value="female">
+                        <label for="my_gender_f" class="radio-label">여자</label>
+                    </div>
+
+                    <label for="partner_mbti">상대방 MBTI (예: ISFJ)</label>
+                    <input type="text" id="partner_mbti" placeholder="4글자 입력" maxlength="4" required>
+                    
+                    <label>상대방 성별</label>
+                    <div class="gender-select">
+                        <input type="radio" id="partner_gender_m" name="partner_gender" value="male" required>
+                        <label for="partner_gender_m" class="radio-label">남자</label>
+                        <input type="radio" id="partner_gender_f" name="partner_gender" value="female">
+                        <label for="partner_gender_f" class="radio-label">여자</label>
+                    </div>
+
+                    <button type="button" class="btn" id="register-btn" onclick="register()">
+                        확인 및 궁합 분석
+                    </button>
+                </form>
+            </div>
+
+            <div class="result-section">
+                <div class="status-box">
+                    현재 분석 대기 건수: <span id="pending-count">0</span>
+                </div>
+
+                <div class="result-area" id="result-area">
+                    <h3>🔍 분석 결과 대기 중...</h3>
+                    <p style="color:var(--color-light-text);">왼쪽 폼에 정보를 입력하고 '확인 및 궁합 분석' 버튼을 눌러주세요.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-controls">
+            <button type="button" class="btn" id="reset-btn" onclick="resetForm()">
+                초기화
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // [핵심 요구 사항 - JavaScript]
+        // 1. API 서버 주소 상수 정의
+        const SERVER_URL = "http://localhost:8080/api/mbti/match"; // 현재는 빈 값으로 가정합니다.
+
+        /**
+         * 입력 폼의 데이터를 수집하고 API 서버에 POST 요청을 보내는 함수.
+         */
+        async function register() {
+            // 폼 데이터 수집
+            const myMbti = document.getElementById('my_mbti').value.toUpperCase();
+            const myGender = document.querySelector('input[name="my_gender"]:checked')?.value;
+            const partnerMbti = document.getElementById('partner_mbti').value.toUpperCase();
+            const partnerGender = document.querySelector('input[name="partner_gender"]:checked')?.value;
+
+            // 기본 유효성 검사 (MBTI 4글자 확인)
+            if (myMbti.length !== 4 || partnerMbti.length !== 4 || !myGender || !partnerGender) {
+                alert('모든 필드를 정확히 입력하고 성별을 선택해주세요. (MBTI는 4글자)');
+                return;
+            }
+
+            const payload = {
+                my_mbti: myMbti,
+                my_gender: myGender,
+                partner_mbti: partnerMbti,
+                partner_gender: partnerGender
+            };
+
+            const resultArea = document.getElementById('result-area');
+            const pendingCount = document.getElementById('pending-count');
+            
+            // UI 상태 업데이트
+            resultArea.innerHTML = `<h3>⏳ ${myMbti}와 ${partnerMbti}의 궁합을 분석 중입니다...</h3>`;
+            pendingCount.textContent = parseInt(pendingCount.textContent) + 1;
+            document.getElementById('register-btn').disabled = true;
+
+            try {
+                // 2. fetch 함수를 이용한 API 통신 구조 (POST 방식)
+                const response = await fetch(SERVER_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    // JSON 데이터 전송
+                    body: JSON.stringify(payload)
+                });
+
+                // 실제 서버 응답 처리 (현재는 테스트 데이터를 반환하도록 임시 설정)
+                if (!response.ok) {
+                     // 서버가 200 OK가 아닌 다른 상태 코드를 반환했을 때 (예: 400, 500)
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                displayResults(result); // 성공 시 결과 표시
+
+            } catch (error) {
+                // [주의] SERVER_URL이 비어있으므로 이 블록에서 오류를 반환합니다.
+                console.error("API 통신 오류:", error);
+                
+                // 임시 데이터로 결과를 표시 (Backend 연결 전 테스트용)
+                const mockResult = generateMockResult(myMbti, partnerMbti);
+                displayResults(mockResult);
+
+            } finally {
+                // UI 상태 복구
+                pendingCount.textContent = Math.max(0, parseInt(pendingCount.textContent) - 1);
+                document.getElementById('register-btn').disabled = false;
+            }
+        }
+
+        /**
+         * API 통신 결과를 UI에 표시하는 함수.
+         * @param {object} data - 서버로부터 받은 결과 데이터
+         */
+        function displayResults(data) {
+            const resultArea = document.getElementById('result-area');
+            
+            resultArea.innerHTML = `
+                <div class="score-display">
+                    <div class="score">${data.match_score}</div>
+                    <div class="label">💖 궁합 점수 💯</div>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>🔥 주요 다툼 포인트 3가지</h4>
+                    <ul>
+                        ${data.conflict_reasons.map(reason => `<li>${reason}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>📍 추천 데이트 코스 3가지</h4>
+                    <ul>
+                        ${data.date_courses.map(course => `<li>${course}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>💡 AI 조언</h4>
+                    <p style="background: #fff3e0; padding: 10px; border-radius: 6px; border-left: 4px solid #ff9800;">
+                        ${data.ai_verdict}
+                    </p>
+                </div>
+            `;
+        }
+
+        /**
+         * 폼 초기화 함수.
+         */
+        function resetForm() {
+            document.getElementById('mbti-form').reset();
+            document.getElementById('result-area').innerHTML = `
+                <h3>🔍 분석 결과 대기 중...</h3>
+                <p style="color:var(--color-light-text);">왼쪽 폼에 정보를 입력하고 '확인 및 궁합 분석' 버튼을 눌러주세요.</p>
+            `;
+            document.getElementById('pending-count').textContent = '0';
+        }
+
+        /**
+         * 서버 통신 오류 시 사용할 임시 결과 생성 함수.
+         */
+        function generateMockResult(mbti1, mbti2) {
+            // 간단한 Mock Logic (예: I와 E가 다르면 점수 높음)
+            const score = (mbti1[0] !== mbti2[0]) ? 85 : 60;
+
+            const mockData = {
+                match_score: `${score}%`,
+                ai_verdict: `(임시 판정) ${mbti1}와 ${mbti2}의 조합은 흥미롭습니다. 상호 보완적인 관계가 될 수 있으니, 서로의 차이를 인정하는 것이 중요합니다!`,
+                conflict_reasons: [
+                    "서로의 다른 의사소통 방식 (직설 vs 우회)",
+                    "시간 약속 및 계획의 중요도 차이",
+                    "감정 표현의 깊이와 빈도에 대한 기대 차이"
+                ],
+                date_courses: [
+                    "서로의 취미를 교환하는 '취미 교환' 데이트",
+                    "새로운 것을 함께 배우는 '원데이 클래스' (도자기/요리)",
+                    "조용한 분위기에서 진솔한 대화를 나누는 '심야 카페'"
+                ]
+            };
+            return mockData;
+        }
+
+    </script>
+</body>
+</html>
