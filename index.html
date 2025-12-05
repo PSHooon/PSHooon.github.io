@@ -319,7 +319,8 @@
     <script>
         // [핵심 요구 사항 - JavaScript]
         // 1. API 서버 주소 상수 정의
-        const SERVER_URL = "http://https://d632dcb1-58f9-4aad-80c4-5ae682e74efd-00-39qkr386lavbr.pike.replit.dev/api/mbti/match"; // 현재는 빈 값으로 가정합니다.
+        // 🚨 수정 완료: URL 형식을 올바르게 수정하고, Replit 서버 주소를 적용했습니다.
+        const SERVER_URL = "https://d632dcb1-58f9-4aad-80c4-5ae682e74efd-00-39qkr386lavbr.pike.replit.dev/api/mbti/match"; 
 
         /**
          * 입력 폼의 데이터를 수집하고 API 서버에 POST 요청을 보내는 함수.
@@ -365,7 +366,7 @@
 
                 // 실제 서버 응답 처리 (현재는 테스트 데이터를 반환하도록 임시 설정)
                 if (!response.ok) {
-                     // 서버가 200 OK가 아닌 다른 상태 코드를 반환했을 때 (예: 400, 500)
+                    // 서버가 200 OK가 아닌 다른 상태 코드를 반환했을 때 (예: 400, 500)
                     throw new Error(`Server error: ${response.status}`);
                 }
 
@@ -373,10 +374,10 @@
                 displayResults(result); // 성공 시 결과 표시
 
             } catch (error) {
-                // [주의] SERVER_URL이 비어있으므로 이 블록에서 오류를 반환합니다.
+                // [주의] 서버 통신 오류가 발생하면 이 블록에서 처리됩니다.
                 console.error("API 통신 오류:", error);
                 
-                // 임시 데이터로 결과를 표시 (Backend 연결 전 테스트용)
+                // 임시 데이터로 결과를 표시 (Backend 연결 전 테스트용 또는 연결 실패 시 대체)
                 const mockResult = generateMockResult(myMbti, partnerMbti);
                 displayResults(mockResult);
 
