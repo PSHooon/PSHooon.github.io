@@ -6,7 +6,7 @@
     <title>💑 MBTI 커플 매치 분석 센터 📊</title>
     <style>
         /* Modern Sports Broadcast Style (Bright Theme) */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Noto+Sans+KR:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Noto+Sans+KR:wght+400;700&display=swap');
 
         :root {
             --color-primary: #ff4081; /* Bright Pink/Magenta - 강조 색상 (사랑/열정) */
@@ -291,7 +291,7 @@
                         <label for="partner_gender_f" class="radio-label">여자</label>
                     </div>
 
-                    <button type="button" class="btn" id="register-btn" onclick="register()">
+                    <button type="button" class="btn" id="register-btn" onclick="onRunAIButtonClicked()">
                         확인 및 궁합 분석
                     </button>
                 </form>
@@ -317,111 +317,119 @@
     </div>
 
     <script>
-        // [핵심 요구 사항 - JavaScript]
-        // 1. API 서버 주소 상수 정의
-        // 🚨 수정 완료: URL 형식을 올바르게 수정하고, Replit 서버 주소를 적용했습니다.
-        const SERVER_URL = "https://92218a3a-9628-4092-bdb3-fe0b373a1f54-00-24x3tpcd26p3e.pike.replit.dev/api/mbti/match";
+        // [고정 규칙]
+        // 1. 백엔드 기본 주소 상수 정의
+        const BACKEND_BASE_URL = "여기에_내_Replit_URL만_넣기"; // 예: https://myproject.username.repl.co
+        const AI_URL = BACKEND_BASE_URL + "/ai"; // 실제 요청 주소
 
         /**
-         * 입력 폼의 데이터를 수집하고 API 서버에 POST 요청을 보내는 함수.
+         * 백엔드 서버에 inputs를 보내고 AI 응답을 받는 핵심 통신 함수.
+         * @param {object} inputs - 사용자 입력값 객체
+         * @returns {Promise<string>} - AI 결과 문자열 또는 오류 메시지
          */
-        async function register() {
-            // 폼 데이터 수집
+        async function callAI(inputs) {
+            try {
+                const payload = { inputs: inputs }; // 통신 규격 3: { "inputs": { ... } }
+
+                const response = await fetch(AI_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                // 통신 규격 3: 응답 body는 { "answer": "AI가 만든 최종 결과 텍스트" }
+                // answer 필드를 문자열로 반환
+                return result.answer || "[통신 오류] 서버에서 유효한 'answer' 필드를 받지 못했습니다.";
+
+            } catch (error) {
+                console.error("API 통신 오류:", error);
+                return `[통신 오류] 서버 연결 또는 요청 처리 실패: ${error.message}`;
+            }
+        }
+
+        /**
+         * AI 실행 버튼 클릭 시 호출되는 메인 로직 함수 (onRunAIButtonClicked).
+         */
+        async function onRunAIButtonClicked() {
+            // 1. 입력값 수집
             const myMbti = document.getElementById('my_mbti').value.toUpperCase();
             const myGender = document.querySelector('input[name="my_gender"]:checked')?.value;
             const partnerMbti = document.getElementById('partner_mbti').value.toUpperCase();
             const partnerGender = document.querySelector('input[name="partner_gender"]:checked')?.value;
 
-            // 기본 유효성 검사 (MBTI 4글자 확인)
+            // 기본 유효성 검사
             if (myMbti.length !== 4 || partnerMbti.length !== 4 || !myGender || !partnerGender) {
                 alert('모든 필드를 정확히 입력하고 성별을 선택해주세요. (MBTI는 4글자)');
                 return;
             }
 
-            const payload = {
+            // 2. inputs 객체 생성 (고정 규칙 1 충족)
+            const inputs = {
                 my_mbti: myMbti,
                 my_gender: myGender,
                 partner_mbti: partnerMbti,
                 partner_gender: partnerGender
             };
 
-            const resultArea = document.getElementById('result-area');
             const pendingCount = document.getElementById('pending-count');
-            
+            const runButton = document.getElementById('register-btn');
+            const resultArea = document.getElementById('result-area');
+
             // UI 상태 업데이트
-            resultArea.innerHTML = `<h3>⏳ ${myMbti}와 ${partnerMbti}의 궁합을 분석 중입니다...</h3>`;
+            resultArea.innerHTML = `<h3>⏳ ${myMbti}와 ${partnerMbti}의 궁합을 분석 중입니다... (AI 통신 중)</h3>`;
             pendingCount.textContent = parseInt(pendingCount.textContent) + 1;
-            document.getElementById('register-btn').disabled = true;
+            runButton.disabled = true;
 
+            let answer = "";
             try {
-                // 2. fetch 함수를 이용한 API 통신 구조 (POST 방식)
-                const response = await fetch(SERVER_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    // JSON 데이터 전송
-                    body: JSON.stringify(payload)
-                });
-
-                // 실제 서버 응답 처리 (현재는 테스트 데이터를 반환하도록 임시 설정)
-                if (!response.ok) {
-                    // 서버가 200 OK가 아닌 다른 상태 코드를 반환했을 때 (예: 400, 500)
-                    throw new Error(`Server error: ${response.status}`);
-                }
-
-                const result = await response.json();
-                displayResults(result); // 성공 시 결과 표시
-
-            } catch (error) {
-                // [주의] 서버 통신 오류가 발생하면 이 블록에서 처리됩니다.
-                console.error("API 통신 오류:", error);
+                // 3. AI 호출 및 결과 수신
+                answer = await callAI(inputs);
                 
-                // 임시 데이터로 결과를 표시 (Backend 연결 전 테스트용 또는 연결 실패 시 대체)
-                const mockResult = generateMockResult(myMbti, partnerMbti);
-                displayResults(mockResult);
-
+            } catch (e) {
+                // callAI에서 모든 오류를 문자열로 처리하여 반환하므로, catch는 필요 없음
             } finally {
-                // UI 상태 복구
+                // 4. 출력 영역에 answer 표시
+                displayAIAnswer(answer, myMbti, partnerMbti);
+                
+                // 5. UI 상태 복구
                 pendingCount.textContent = Math.max(0, parseInt(pendingCount.textContent) - 1);
-                document.getElementById('register-btn').disabled = false;
+                runButton.disabled = false;
             }
         }
 
         /**
-         * API 통신 결과를 UI에 표시하는 함수.
-         * @param {object} data - 서버로부터 받은 결과 데이터
+         * AI 결과 문자열을 UI에 표시하는 함수. (출력 영역: #result-area)
+         * @param {string} answer - AI가 만든 최종 결과 문자열
+         * @param {string} mbti1 - 나의 MBTI
+         * @param {string} mbti2 - 상대방 MBTI
          */
-        function displayResults(data) {
+        function displayAIAnswer(answer, mbti1, mbti2) {
             const resultArea = document.getElementById('result-area');
             
-            resultArea.innerHTML = `
-                <div class="score-display">
-                    <div class="score">${data.match_score}</div>
-                    <div class="label">💖 궁합 점수 💯</div>
-                </div>
-
-                <div class="analysis-item">
-                    <h4>🔥 주요 다툼 포인트 3가지</h4>
-                    <ul>
-                        ${data.conflict_reasons.map(reason => `<li>${reason}</li>`).join('')}
-                    </ul>
-                </div>
-
-                <div class="analysis-item">
-                    <h4>📍 추천 데이트 코스 3가지</h4>
-                    <ul>
-                        ${data.date_courses.map(course => `<li>${course}</li>`).join('')}
-                    </ul>
-                </div>
-
-                <div class="analysis-item">
-                    <h4>💡 AI 조언</h4>
-                    <p style="background: #fff3e0; padding: 10px; border-radius: 6px; border-left: 4px solid #ff9800;">
-                        ${data.ai_verdict}
-                    </p>
-                </div>
-            `;
+            if (answer.includes('[통신 오류]')) {
+                resultArea.innerHTML = `
+                    <h3>🚨 AI 분석 실패: 통신 오류 🚨</h3>
+                    <div style="background: #ffebee; padding: 15px; border-radius: 8px; border: 1px solid #e57373;">
+                        <p style="color: #c62828; white-space: pre-wrap; margin: 0;">${answer}</p>
+                    </div>
+                    <p style="color:var(--color-light-text); margin-top: 15px;">서버 주소를 <a href="https://replit.com" target="_blank">Replit</a> URL로 변경하고 백엔드(main.py)가 실행 중인지 확인해주세요.</p>
+                `;
+            } else {
+                 resultArea.innerHTML = `
+                    <h3>✅ ${mbti1}와 ${mbti2} 커플 분석 완료</h3>
+                    <div style="background: #fcfcfc; white-space: pre-wrap; line-height: 1.6; padding: 15px; border: 1px solid #eee; border-radius: 8px;">
+                        ${answer}
+                    </div>
+                `;
+            }
         }
 
         /**
@@ -436,40 +444,7 @@
             document.getElementById('pending-count').textContent = '0';
         }
 
-        /**
-         * 서버 통신 오류 시 사용할 임시 결과 생성 함수.
-         */
-        function generateMockResult(mbti1, mbti2) {
-            // 간단한 Mock Logic (예: I와 E가 다르면 점수 높음)
-            const score = (mbti1[0] !== mbti2[0]) ? 85 : 60;
-
-            const mockData = {
-                match_score: `${score}%`,
-                ai_verdict: `(임시 판정) ${mbti1}와 ${mbti2}의 조합은 흥미롭습니다. 상호 보완적인 관계가 될 수 있으니, 서로의 차이를 인정하는 것이 중요합니다!`,
-                conflict_reasons: [
-                    "서로의 다른 의사소통 방식 (직설 vs 우회)",
-                    "시간 약속 및 계획의 중요도 차이",
-                    "감정 표현의 깊이와 빈도에 대한 기대 차이"
-                ],
-                date_courses: [
-                    "서로의 취미를 교환하는 '취미 교환' 데이트",
-                    "새로운 것을 함께 배우는 '원데이 클래스' (도자기/요리)",
-                    "조용한 분위기에서 진솔한 대화를 나누는 '심야 카페'"
-                ]
-            };
-            return mockData;
-        }
-
     </script>
 </body>
 
 </html>
-
-
-
-
-
-
-
-
-
